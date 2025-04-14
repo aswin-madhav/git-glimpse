@@ -1,0 +1,60 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    environment:
+      # Use localhost for client-side API calls since they come from the browser
+      - VITE_API_URL=http://localhost:5001
+    networks:
+      - gitglimpse-network
+    restart: unless-stopped
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./server/.env
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      # Use the secret key directly from the .env file
+      - CLIENT_URL=http://localhost
+      # Redis configuration
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      # Ensure Flask listens on all interfaces
+      - FLASK_RUN_HOST=0.0.0.0
+    volumes:
+      - ./server:/app
+    networks:
+      - gitglimpse-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - gitglimpse-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+networks:
+  gitglimpse-network:
+    driver: bridge
+
+volumes:
+  redis-data:
