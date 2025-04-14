@@ -73,16 +73,26 @@ cd git-glimpse
 Create a `.env` file in the server directory:
 
 ```bash
-cp server/.env.example server/.env
+# Create .env file in the server directory
+touch server/.env
 ```
 
-Edit the `.env` file and add your GitHub OAuth credentials:
+Edit the `.env` file and add your GitHub OAuth credentials and Flask secret key:
 
 ```env
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
 FLASK_SECRET_KEY=your_random_secret_key
 ```
+
+You can generate a secure Flask secret key using Python:
+
+```bash
+# Run this command to generate a random secret key
+python -c "import secrets; print(secrets.token_hex(16))"
+```
+
+Copy the output and use it as your `FLASK_SECRET_KEY` value.
 
 ### 3. Run with Docker Compose
 
